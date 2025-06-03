@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "scheme": "acme",
+    "userInterfaceStyle": "automatic",
+    "orientation": "default",
+    "web": {
+      "output": "static"
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "origin": "https://n"
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#3b82f6",
+          "image": "./src/assets/task-logo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain"
+        }
+      ]
+    ],
+    "name": "Notes App",
+    "slug": "Notes-mobile",
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/icon.png",
+        "backgroundColor": "#006BFF"
+      },
+      "package": "com.juancamilo.notesmanager",
+      "edgeToEdgeEnabled": true
+    },
+    "extra": {
+      "router": {
+        "origin": "https://n"
+      },
+      "eas": {
+        "projectId": "ce3b8aac-0088-4b95-bf12-bb9b79935e60"
+      }
+    },
+    "owner": "juancam1"
+  }
+}
