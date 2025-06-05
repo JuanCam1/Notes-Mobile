@@ -3,10 +3,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNotesStore } from "@/store/useNoteStore";
 import { EmptyState } from "@/components/EmptyState";
 import { NoteItem } from "@/components/NoteItem";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 
 export default function CategoriesScreen() {
 	const { notes } = useNotesStore();
 	const { top } = useSafeAreaInsets();
+	const [refresh, setRefresh] = useState(false);
 	const notesFiltered = notes.filter((note) => note.status === "Archivado");
 	const isEmpty = notesFiltered.length === 0;
 
@@ -14,6 +17,12 @@ export default function CategoriesScreen() {
 		title: "No hay notas",
 		message: "No hay notas archivadas en este momento.",
 	};
+
+	useFocusEffect(
+		useCallback(() => {
+			setRefresh((prev) => !prev);
+		}, []),
+	);
 
 	return (
 		<SafeAreaView

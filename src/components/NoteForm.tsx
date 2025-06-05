@@ -20,18 +20,21 @@ interface NoteFormProps {
 
 export function NoteForm({ noteId, isEditing = false }: NoteFormProps) {
 	const { notes, addNote, updateNote } = useNotesStore();
-	const [title, setTitle] = useState("");
-	const [description, setDescription] = useState("");
-	const [status, setStatus] = useState<NoteStatusModel>("Activo");
+
+	const [noteCreate, setNoteCreate] = useState({
+		title: "",
+		description: "",
+		status: "Activo" as NoteStatusModel,
+	});
+
 	const [errors, setErrors] = useState({ title: "", description: "" });
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
 		if (isEditing && noteId) {
 			const note = notes.find((n) => n.id === noteId);
 			if (note) {
-				setTitle(note.title);
-				setDescription(note.description);
-				setStatus(note.status);
+				setNoteCreate(note);
 			}
 		}
 	}, [noteId, notes, isEditing]);
@@ -40,12 +43,12 @@ export function NoteForm({ noteId, isEditing = false }: NoteFormProps) {
 		const newErrors = { title: "", description: "" };
 		let isValid = true;
 
-		if (!title.trim()) {
+		if (!noteCreate.title.trim()) {
 			newErrors.title = "El título es requerido";
 			isValid = false;
 		}
 
-		if (!description.trim()) {
+		if (!noteCreate.description.trim()) {
 			newErrors.description = "La descripción es requerida";
 			isValid = false;
 		}
@@ -55,14 +58,22 @@ export function NoteForm({ noteId, isEditing = false }: NoteFormProps) {
 	};
 
 	const handleSubmit = async () => {
+		if (isSubmitting) return;
+
 		if (!validateForm()) return;
 
-		if (isEditing && noteId) {
-			await updateNote(noteId, { title, description, status });
-		} else {
-			await addNote(title, description);
+		setIsSubmitting(true);
+
+		try {
+			if (isEditing && noteId) {
+				await updateNote(noteId, noteCreate);
+			} else {
+				await addNote(noteCreate.title, noteCreate.description);
+			}
+			router.navigate("/");
+		} finally {
+			setIsSubmitting(false);
 		}
-		router.navigate("/");
 	};
 
 	const statusOptions: NoteStatusModel[] = [
@@ -79,29 +90,35 @@ export function NoteForm({ noteId, isEditing = false }: NoteFormProps) {
 			<View className="flex-row items-center justify-between my-12 ">
 				<Pressable
 					onPress={() => router.back()}
-					className="p-2 rounded-full bg-blue-400"
+					className="p-2 rounded-full bg-zinc-500"
 					hitSlop={8}
 				>
 					<ChevronLeft size={24} color="white" />
 				</Pressable>
-				<Text className="text-2xl font-semibold dark:text-blue-500">
+				<Text className="text-2xl font-semibold dark:text-blue-400">
 					{isEditing ? "Editar Nota" : "Crear Nota"}
 				</Text>
 				<Pressable
 					onPress={handleSubmit}
-					className="p-2 rounded-full bg-blue-400"
+					disabled={isSubmitting}
 					hitSlop={8}
+					className={`p-2 rounded-full ${
+						isSubmitting ? "bg-blue-300" : "bg-blue-500"
+					}`}
 				>
 					<Check size={24} color="white" />
 				</Pressable>
 			</View>
 
-			<View className="my-6 ">
-				<Text className="dark:text-blue-500 mb-1 font-medium">Titulo:</Text>
+			<View className="mt-4 mb-2">
+				<Text className="dark:text-blue-500 mb-2 font-medium">Titulo:</Text>
 				<FormInput
-					value={title}
-					onChangeText={setTitle}
 					placeholder="Ingresa el título de la nota"
+					placeholderTextColor="#A1A1AA"
+					value={noteCreate.title}
+					onChangeText={(title) =>
+						setNoteCreate((prev) => ({ ...prev, title }))
+					}
 				/>
 				{errors.title ? (
 					<Text className="text-red-500 mt-1 text-xs">{errors.title}</Text>
@@ -109,18 +126,21 @@ export function NoteForm({ noteId, isEditing = false }: NoteFormProps) {
 			</View>
 			<View className="h-12" />
 
-			<View className="my-8 h-36 ">
-				<Text className="dark:text-blue-500 mb-1 font-medium">
+			<View className="my-6 h-36 ">
+				<Text className="dark:text-blue-500 mb-2 font-medium">
 					Descripción:
 				</Text>
 				<TextInput
 					className="h-full flex-1 text-md p-2.5 pl-3 border-none bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200"
-					value={description}
-					onChangeText={setDescription}
 					placeholder="Ingresa descripción de la nota"
 					multiline
 					numberOfLines={4}
 					textAlignVertical="top"
+					placeholderTextColor="#A1A1AA"
+					value={noteCreate.description}
+					onChangeText={(description) =>
+						setNoteCreate((prev) => ({ ...prev, description }))
+					}
 				/>
 				{errors.description ? (
 					<Text className="text-red-500 mt-1 text-xs">
@@ -131,15 +151,17 @@ export function NoteForm({ noteId, isEditing = false }: NoteFormProps) {
 
 			{isEditing && (
 				<View className="mb-4">
-					<Text className="text-neutral-700 mb-2 font-medium">Status</Text>
+					<Text className="dark:text-blue-500 mb-2 font-medium ">Status</Text>
 					<View className="flex-row flex-wrap gap-2">
 						{statusOptions.map((option) => {
 							const statusColor = STATUS_COLORS[option];
-							const isSelected = status === option;
+							const isSelected = noteCreate.status === option;
 							return (
 								<Pressable
 									key={option}
-									onPress={() => setStatus(option)}
+									onPress={() =>
+										setNoteCreate((prev) => ({ ...prev, status: option }))
+									}
 									className={`px-4 py-2 rounded-full border ${
 										isSelected
 											? `${statusColor.border}`

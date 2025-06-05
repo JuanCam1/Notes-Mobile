@@ -93,7 +93,7 @@ export default function NoteDetailScreen() {
 
 	return (
 		<View className="flex-1 bg-white dark:bg-zinc-900">
-			<View className="flex-row justify-between items-center p-6 pt-12  bg-white dark:bg-zinc-900 border-b border-neutral-300 dark:border-neutral-400">
+			<View className="flex-row justify-between items-center px-3 py-6 pt-12  bg-white dark:bg-zinc-900 border-b border-neutral-300 dark:border-neutral-400 mx-4">
 				<Pressable
 					onPress={() => router.back()}
 					className="p-2 rounded-full bg-blue-400"
@@ -116,9 +116,9 @@ export default function NoteDetailScreen() {
 				</View>
 			</View>
 
-			<ScrollView className="flex-1 p-4">
+			<ScrollView className="flex-1 p-4 mt-8">
 				<View className="mb-4 flex-row">
-					<Text className={`px-3 py-1 rounded-full ${statusColors.text}`}>
+					<Text className={`py-1 rounded-full ${statusColors.text}`}>
 						{status.charAt(0).toUpperCase() + status.slice(1)}
 					</Text>
 				</View>
